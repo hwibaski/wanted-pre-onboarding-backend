@@ -1,6 +1,5 @@
 package kr.co.wanted.backend.mypost.controller.member;
 
-import kr.co.wanted.backend.mypost.controller.dto.ResponseTemplate.ResponseTemplate;
 import kr.co.wanted.backend.mypost.controller.dto.member.MemberSignUpRequestDto;
 import kr.co.wanted.backend.mypost.controller.dto.member.MemberSignUpResponseDto;
 import kr.co.wanted.backend.mypost.domain.member.Member;
@@ -21,10 +20,10 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/signup")
-    public ResponseTemplate signUp(@Valid @RequestBody MemberSignUpRequestDto requestDto) {
+    public MemberSignUpResponseDto signUp(@Valid @RequestBody MemberSignUpRequestDto requestDto) {
         Member member = memberService.signUp(requestDto);
         MemberSignUpResponseDto result = new MemberSignUpResponseDto(member.getId());
 
-        return ResponseTemplate.successResponse(result);
+        return result;
     }
 }

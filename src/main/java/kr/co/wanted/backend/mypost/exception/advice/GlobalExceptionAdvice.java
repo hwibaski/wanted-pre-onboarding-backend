@@ -11,9 +11,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionAdvice {
     @ExceptionHandler({Exception.class})
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex) {
-
-        ErrorResponse errorResponse = new ErrorResponse("500", "INTERNAL_SERVER_ERROR");
-
-        return ResponseEntity.badRequest().body(errorResponse);
+        return ResponseEntity
+                .badRequest()
+                .body(new ErrorResponse("500", "INTERNAL_SERVER_ERROR"));
     }
 }

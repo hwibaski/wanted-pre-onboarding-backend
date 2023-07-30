@@ -12,9 +12,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class CustomExceptionAdvice {
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleCustomException(CustomException ex) {
-
-        ErrorResponse errorResponse = new ErrorResponse("400", ex.getMessage());
-
-        return ResponseEntity.badRequest().body(errorResponse);
+        return ResponseEntity
+                .badRequest()
+                .body(new ErrorResponse("400", ex.getMessage()));
     }
 }

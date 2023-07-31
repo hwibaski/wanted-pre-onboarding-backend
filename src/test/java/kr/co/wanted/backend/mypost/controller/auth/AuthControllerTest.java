@@ -54,7 +54,7 @@ class AuthControllerTest {
         String password = "12345678";
         String requestBody = objectMapper.writeValueAsString(new AuthSignUpRequestDto(email, password));
 
-        mockMvc.perform(post("/api/v1/member/signup")
+        mockMvc.perform(post("/api/auth/signup")
                         .content(requestBody)
                         .contentType(APPLICATION_JSON)
                         .accept(APPLICATION_JSON))
@@ -72,7 +72,7 @@ class AuthControllerTest {
 
         // when
         // then
-        mockMvc.perform(post("/api/v1/member/signup")
+        mockMvc.perform(post("/api/auth/signup")
                         .content(requestBody)
                         .contentType(APPLICATION_JSON)
                         .accept(APPLICATION_JSON))
@@ -92,7 +92,7 @@ class AuthControllerTest {
 
         // when
         // then
-        mockMvc.perform(post("/api/v1/member/signup")
+        mockMvc.perform(post("/api/auth/signup")
                         .content(requestBody)
                         .contentType(APPLICATION_JSON)
                         .accept(APPLICATION_JSON))
@@ -112,7 +112,7 @@ class AuthControllerTest {
 
         // when
         // then
-        mockMvc.perform(post("/api/v1/member/signup")
+        mockMvc.perform(post("/api/auth/signup")
                         .content(requestBody)
                         .contentType(APPLICATION_JSON)
                         .accept(APPLICATION_JSON))
@@ -137,7 +137,7 @@ class AuthControllerTest {
 
         // when
         // then
-        mockMvc.perform(post("/api/v1/member/signup")
+        mockMvc.perform(post("/api/auth/signup")
                         .content(requestBody)
                         .contentType(APPLICATION_JSON)
                         .accept(APPLICATION_JSON))
@@ -163,7 +163,7 @@ class AuthControllerTest {
 
         // when
         // then
-        mockMvc.perform(post("/api/v1/member/signin")
+        mockMvc.perform(post("/api/auth/signin")
                         .content(requestBody)
                         .contentType(APPLICATION_JSON)
                         .accept(APPLICATION_JSON))
@@ -191,7 +191,7 @@ class AuthControllerTest {
 
         // when
         // then
-        mockMvc.perform(post("/api/v1/member/signin")
+        mockMvc.perform(post("/api/auth/signin")
                         .content(requestBody)
                         .contentType(APPLICATION_JSON)
                         .accept(APPLICATION_JSON))

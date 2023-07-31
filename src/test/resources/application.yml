@@ -11,6 +11,14 @@ spring:
       hibernate:
         format_sql: true
     show-sql: true
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+  jwt:
+    header: Authorization
+    secret: 6721169FE59D455CFFE021A706E545B4E2BD97A18F0DD39C69517AAD61E8B1EA916C4738EAB98B2989E9F5F3FD9B54E1579C50CED16BB8AE45E4BBDA8CC5879C
+    token-validity-in-seconds: 86400
 
 logging:
   level:

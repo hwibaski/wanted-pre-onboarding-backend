@@ -1,6 +1,6 @@
-package kr.co.wanted.backend.mypost.service.member;
+package kr.co.wanted.backend.mypost.service.auth;
 
-import kr.co.wanted.backend.mypost.controller.dto.member.MemberSignUpRequestDto;
+import kr.co.wanted.backend.mypost.controller.dto.auth.AuthSignUpRequestDto;
 import kr.co.wanted.backend.mypost.domain.member.Member;
 import kr.co.wanted.backend.mypost.exception.AlreadyExistUserException;
 import org.junit.jupiter.api.DisplayName;
@@ -13,9 +13,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
-class MemberServiceTest {
+class AuthServiceTest {
     @Autowired
-    MemberService memberService;
+    AuthService authService;
 
     @Transactional
     @DisplayName("회원가입 성공 test")
@@ -24,10 +24,10 @@ class MemberServiceTest {
         // given
         String email = "khmin3011@naver.com";
         String password = "12345678";
-        MemberSignUpRequestDto memberSignUpRequestDto = new MemberSignUpRequestDto(email, password);
+        AuthSignUpRequestDto authSignUpRequestDto = new AuthSignUpRequestDto(email, password);
 
         // when
-        Member member = memberService.signUp(memberSignUpRequestDto);
+        Member member = authService.signUp(authSignUpRequestDto);
 
         // then
         assertThat(member.getEmail()).isEqualTo(email);
@@ -41,13 +41,13 @@ class MemberServiceTest {
         // given
         String email = "khmin3011@naver.com";
         String password = "12345678";
-        MemberSignUpRequestDto memberSignUpRequestDto = new MemberSignUpRequestDto(email, password);
-        memberService.signUp(memberSignUpRequestDto);
+        AuthSignUpRequestDto authSignUpRequestDto = new AuthSignUpRequestDto(email, password);
+        authService.signUp(authSignUpRequestDto);
 
         // when
         // then
         assertThatThrownBy(
-                () -> memberService.signUp(memberSignUpRequestDto))
+                () -> authService.signUp(authSignUpRequestDto))
                 .isInstanceOf(AlreadyExistUserException.class)
                 .hasMessage("이미 존재하는 이메일입니다");
     }

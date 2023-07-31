@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-@Order(Integer.MAX_VALUE)
-public class GlobalExceptionAdvice {
-    @ExceptionHandler({Exception.class})
-    public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex) {
+@Order(Integer.MAX_VALUE - 1)
+public class RuntimeExceptionAdvice {
+    @ExceptionHandler({RuntimeException.class})
+    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
         return ResponseEntity
-                .internalServerError()
-                .body(new ErrorResponse("500", "INTERNAL_SERVER_ERROR"));
+                .badRequest()
+                .body(new ErrorResponse("400", ex.getMessage()));
     }
 }

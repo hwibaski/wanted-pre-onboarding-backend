@@ -1,6 +1,7 @@
 package kr.co.wanted.backend.mypost.service.post;
 
-import kr.co.wanted.backend.mypost.controller.dto.post.CreatePostDto;
+import kr.co.wanted.backend.mypost.controller.dto.post.CreatePostRequestDto;
+import kr.co.wanted.backend.mypost.domain.member.Member;
 import kr.co.wanted.backend.mypost.domain.post.Post.Post;
 import kr.co.wanted.backend.mypost.repository.post.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +12,8 @@ import org.springframework.stereotype.Service;
 public class PostService {
     private final PostRepository postRepository;
 
-    public Post create(CreatePostDto createPostDto) {
-        Post post = Post.createPost(createPostDto.getTitle(), createPostDto.getContent());
+    public Post create(CreatePostRequestDto createPostRequestDto, Member member) {
+        Post post = Post.createPost(createPostRequestDto.getTitle(), createPostRequestDto.getContent(), member);
 
         return postRepository.save(post);
     }

@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 @RequiredArgsConstructor
-public class CreatePostDto {
+public class CreatePostRequestDto {
     @NotBlank(message = "글 제목을 확인해주세요")
     private final String title;
 

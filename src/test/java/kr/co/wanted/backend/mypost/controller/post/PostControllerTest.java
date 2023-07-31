@@ -1,7 +1,8 @@
 package kr.co.wanted.backend.mypost.controller.post;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.co.wanted.backend.mypost.controller.dto.post.CreatePostDto;
+import kr.co.wanted.backend.mypost.annotation.WithAccount;
+import kr.co.wanted.backend.mypost.controller.dto.post.CreatePostRequestDto;
 import kr.co.wanted.backend.mypost.repository.post.PostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +17,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,21 +39,21 @@ class PostControllerTest {
 
     @Test
     @DisplayName("글 작성 성공")
-    @WithMockUser
+    @WithAccount("test@gmail.com")
     void createPost() throws Exception {
         // given
         String title = "글 제목";
         String content = "글 내용";
-        CreatePostDto createPostDto = new CreatePostDto(title, content);
-        String requestBody = objectMapper.writeValueAsString(createPostDto);
+        CreatePostRequestDto createPostRequestDto = new CreatePostRequestDto(title, content);
+        String requestBody = objectMapper.writeValueAsString(createPostRequestDto);
 
         // when
         mockMvc.perform(post("/api/post")
                         .contentType(APPLICATION_JSON)
                         .content(requestBody)
                 )
-                .andExpect(status().isOk())
-                .andExpect(content().string("post"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.postId").exists())
                 .andDo(print());
 
         // then
@@ -67,8 +67,8 @@ class PostControllerTest {
         // given
         String title = "";
         String content = "content";
-        CreatePostDto createPostDto = new CreatePostDto(title, content);
-        String requestBody = objectMapper.writeValueAsString(createPostDto);
+        CreatePostRequestDto createPostRequestDto = new CreatePostRequestDto(title, content);
+        String requestBody = objectMapper.writeValueAsString(createPostRequestDto);
 
         // when
         // then
@@ -90,8 +90,8 @@ class PostControllerTest {
         // given
         String title = "title";
         String content = "";
-        CreatePostDto createPostDto = new CreatePostDto(title, content);
-        String requestBody = objectMapper.writeValueAsString(createPostDto);
+        CreatePostRequestDto createPostRequestDto = new CreatePostRequestDto(title, content);
+        String requestBody = objectMapper.writeValueAsString(createPostRequestDto);
 
         // when
         // then

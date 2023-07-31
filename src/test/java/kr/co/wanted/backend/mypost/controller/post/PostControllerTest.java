@@ -2,6 +2,8 @@ package kr.co.wanted.backend.mypost.controller.post;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.co.wanted.backend.mypost.controller.dto.post.CreatePostDto;
+import kr.co.wanted.backend.mypost.repository.post.PostRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -26,6 +29,14 @@ class PostControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private PostRepository postRepository;
+
+    @BeforeEach
+    void beforeEach() {
+        this.postRepository.deleteAllInBatch();
+    }
+
     @Test
     @DisplayName("글 작성 성공")
     @WithMockUser
@@ -37,7 +48,6 @@ class PostControllerTest {
         String requestBody = objectMapper.writeValueAsString(createPostDto);
 
         // when
-        // then
         mockMvc.perform(post("/api/post")
                         .contentType(APPLICATION_JSON)
                         .content(requestBody)
@@ -45,6 +55,9 @@ class PostControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("post"))
                 .andDo(print());
+
+        // then
+        assertThat(postRepository.count()).isEqualTo(1);
     }
 
     @Test

@@ -29,11 +29,16 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     List<MemberAuthority> memberAuthorities = new ArrayList<>();
 
-    private Member(String email, String password, MemberAuthority memberAuthority) {
+    private Member(String email, String password) {
         this.email = email;
         this.password = password;
+    }
+
+    private Member(String email, String password, MemberAuthority memberAuthority) {
+        this(email, password);
         this.memberAuthorities.add(memberAuthority);
     }
+
 
     private void addAuthority(MemberAuthority authority) {
         memberAuthorities.add(authority);
@@ -45,5 +50,9 @@ public class Member extends BaseEntity {
         member.addAuthority(memberAuthority);
 
         return member;
+    }
+
+    public static Member createMember(String email, String password) {
+        return new Member(email, password);
     }
 }

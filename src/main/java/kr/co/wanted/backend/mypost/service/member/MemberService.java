@@ -5,9 +5,11 @@ import kr.co.wanted.backend.mypost.exception.NotFoundException;
 import kr.co.wanted.backend.mypost.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MemberService {
     private final MemberRepository memberRepository;
 

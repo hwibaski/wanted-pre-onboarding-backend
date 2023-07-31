@@ -1,5 +1,6 @@
 package kr.co.wanted.backend.mypost.domain.member;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,7 +18,7 @@ import javax.persistence.ManyToOne;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberAuthority {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,10 +32,11 @@ public class MemberAuthority {
     @JoinColumn(name = "authority_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Authority authority;
 
-    public static MemberAuthority createMemberAuthority(Authority authority) {
-        MemberAuthority memberAuthority = new MemberAuthority();
-        memberAuthority.setAuthority(authority);
+    private MemberAuthority(Authority authority) {
+        this.authority = authority;
+    }
 
-        return memberAuthority;
+    public static MemberAuthority createMemberAuthority(Authority authority) {
+        return new MemberAuthority(authority);
     }
 }

@@ -1,6 +1,7 @@
 package kr.co.wanted.backend.mypost.domain.member;
 
 import kr.co.wanted.backend.mypost.domain.base.BaseEntity;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Member extends BaseEntity {
     @Id

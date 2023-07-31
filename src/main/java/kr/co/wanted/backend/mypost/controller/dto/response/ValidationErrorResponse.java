@@ -1,4 +1,4 @@
-package kr.co.wanted.backend.mypost.controller.dto.Response;
+package kr.co.wanted.backend.mypost.controller.dto.response;
 
 import lombok.Getter;
 

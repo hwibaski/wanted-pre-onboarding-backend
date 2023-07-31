@@ -1,6 +1,7 @@
 package kr.co.wanted.backend.mypost.service.post;
 
 import kr.co.wanted.backend.mypost.controller.dto.post.CreatePostRequestDto;
+import kr.co.wanted.backend.mypost.controller.dto.request.PostSearch;
 import kr.co.wanted.backend.mypost.domain.member.Member;
 import kr.co.wanted.backend.mypost.domain.post.Post.Post;
 import kr.co.wanted.backend.mypost.repository.member.MemberRepository;
@@ -11,6 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
+import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -46,9 +51,33 @@ class PostServiceTest {
         assertThat(post.getMember().getId()).isEqualTo(memberForTest.getId());
     }
 
+    @DisplayName("post list를 조회한다.")
+    @Test
+    void getPostListWhenSuccess() {
+        // given
+        Member memberForTest = createMemberForTest();
+        List<Post> postsToSave = IntStream
+                .rangeClosed(1, 10)
+                .mapToObj(index -> Post.createPost("title " + index, "content " + index, memberForTest))
+                .collect(toList());
+
+        postRepository.saveAll(postsToSave);
+
+        PostSearch postSearch = PostSearch.builder()
+                .page(1)
+                .size(10)
+                .build();
+
+        // when
+        List<Post> list = postService.getList(postSearch);
+
+        // then
+        assertThat(list.size()).isEqualTo(10);
+        assertThat(list.get(0).getTitle()).isEqualTo("title 10");
+    }
+
     public Member createMemberForTest() {
         Member member = Member.createMember("test@gmail.com", "12345678");
         return memberRepository.save(member);
     }
-
 }

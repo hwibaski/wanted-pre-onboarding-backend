@@ -1,12 +1,15 @@
 package kr.co.wanted.backend.mypost.service.post;
 
 import kr.co.wanted.backend.mypost.controller.dto.post.CreatePostRequestDto;
+import kr.co.wanted.backend.mypost.controller.dto.request.PostSearch;
 import kr.co.wanted.backend.mypost.domain.member.Member;
 import kr.co.wanted.backend.mypost.domain.post.Post.Post;
 import kr.co.wanted.backend.mypost.repository.post.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -19,5 +22,9 @@ public class PostService {
         Post post = Post.createPost(createPostRequestDto.getTitle(), createPostRequestDto.getContent(), member);
 
         return postRepository.save(post);
+    }
+
+    public List<Post> getList(PostSearch postSearch) {
+        return postRepository.getList(postSearch);
     }
 }

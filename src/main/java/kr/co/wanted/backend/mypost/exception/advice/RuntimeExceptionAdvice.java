@@ -1,6 +1,6 @@
 package kr.co.wanted.backend.mypost.exception.advice;
 
-import kr.co.wanted.backend.mypost.controller.dto.Response.ErrorResponse;
+import kr.co.wanted.backend.mypost.controller.dto.response.ErrorResponse;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

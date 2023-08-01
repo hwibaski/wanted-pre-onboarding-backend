@@ -13,6 +13,7 @@ import com.mypost.service.post.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -67,5 +68,12 @@ public class PostController {
         Member member = memberService.findMemberByEmail(principal.getName());
         Post post = postService.editPostById(postId, editPostRequestDto, member);
         return new EditPostResponseDto(post.getId());
+    }
+
+    @DeleteMapping("/posts/{postId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deletePostById(@PathVariable Long postId, Principal principal) {
+        Member member = memberService.findMemberByEmail(principal.getName());
+        postService.deletePostById(postId, member);
     }
 }

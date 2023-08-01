@@ -26,6 +26,7 @@ import java.util.stream.IntStream;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -224,7 +225,7 @@ class PostControllerTest {
     }
 
     @Test
-    @DisplayName("글 수정")
+    @DisplayName("글 수정 - 제목이 비어있을 경우 예외가 발생한다.")
     @WithAccount("test@gmail.com")
     void editPostFailWhenBlankTitle() throws Exception {
         // given
@@ -252,7 +253,7 @@ class PostControllerTest {
     }
 
     @Test
-    @DisplayName("글 수정")
+    @DisplayName("글 수정 - 본문이 비어있을 경우 예외가 발생한다.")
     @WithAccount("test@gmail.com")
     void editPostFailWhenBlankContent() throws Exception {
         // given
@@ -276,6 +277,26 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.code").value("400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
                 .andExpect(jsonPath("$.validation.content").value("글 본문을 확인해주세요"))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("글 삭제")
+    @WithAccount("test@gmail.com")
+    void deletePost() throws Exception {
+        // given
+        String name = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<Member> author = memberRepository.findByEmail(name);
+
+        Post post = Post.createPost("title", "content", author.get());
+        Post savedPost = postRepository.save(post);
+        Long savedPostId = savedPost.getId();
+
+        // when
+        // then
+        mockMvc.perform(delete("/api/posts/{postId}", savedPostId.toString())
+                        .accept(APPLICATION_JSON))
+                .andExpect(status().isOk())
                 .andDo(print());
     }
 

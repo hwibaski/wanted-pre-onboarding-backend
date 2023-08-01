@@ -35,11 +35,20 @@ public class PostService {
                 .orElseThrow(() -> new NotFoundException("해당 글을 찾을 수 없습니다."));
     }
 
+    @Transactional
     public Post editPostById(Long postId, EditPostRequestDto editPostRequestDto, Member member) {
         Post post = postRepository.findPostByIdAndMember(postId, member)
                 .orElseThrow(() -> new NotFoundException("해당 글을 찾을 수 없습니다."));
 
         post.change(editPostRequestDto.getTitle(), editPostRequestDto.getContent());
         return post;
+    }
+
+    @Transactional
+    public void deletePostById(Long postId, Member member) {
+        Post post = postRepository.findPostByIdAndMember(postId, member)
+                .orElseThrow(() -> new NotFoundException("해당 글을 찾을 수 없습니다."));
+
+        postRepository.delete(post);
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
@@ -33,6 +34,7 @@ class PostServiceTest {
     private PostRepository postRepository;
 
     private static final String TEST_USER_EMAIL = "test@gmail.com";
+    private static final String ANOTHER_USER_EMAIL = "another@gmail.com";
     private static final String TEST_USER_PASSWORD = "12345678";
 
     @BeforeEach
@@ -163,7 +165,7 @@ class PostServiceTest {
         Post post = Post.createPost(titleBeforeUpdate, contentBeforeUpdate, memberForTest);
         Post savedPost = postRepository.save(post);
 
-        Member anotherAuthor = createMemberForTest(TEST_USER_EMAIL, TEST_USER_PASSWORD);
+        Member anotherAuthor = createMemberForTest(ANOTHER_USER_EMAIL, TEST_USER_PASSWORD);
 
         String titleToUpdate = "title update";
         String contentToUpdate = "content update";
@@ -175,7 +177,6 @@ class PostServiceTest {
         assertThatThrownBy(() -> postService.editPostById(savedPost.getId(), editPostRequestDto, anotherAuthor))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("해당 글을 찾을 수 없습니다.");
-
     }
 
     @DisplayName("post 수정 - 수정할 항목에 null을 전달할 경우에는 해당 필드는 변경하지 않는다.")
@@ -199,6 +200,54 @@ class PostServiceTest {
         // then
         assertThat(postToEdit.getTitle()).isEqualTo(titleBeforeUpdate);
         assertThat(postToEdit.getContent()).isEqualTo(contentBeforeUpdate);
+    }
+
+    @DisplayName("post 삭제")
+    @Test
+    void deletePostWhenSuccess() {
+        // given
+        Member memberForTest = createMemberForTest(TEST_USER_EMAIL, TEST_USER_PASSWORD);
+        Post post = Post.createPost("title", "content", memberForTest);
+        Post savedPost = postRepository.save(post);
+
+        // when
+        postService.deletePostById(savedPost.getId(), memberForTest);
+
+        // then
+        Optional<Post> postOptional = postRepository.findById(savedPost.getId());
+        assertThat(postOptional.isPresent()).isEqualTo(false);
+    }
+
+    @DisplayName("post 삭제 - 해당 게시글이 없을 때는 예외를 던진다")
+    @Test
+    void deletePostWhenFailedToFindPost() {
+        // given
+        Member memberForTest = createMemberForTest(TEST_USER_EMAIL, TEST_USER_PASSWORD);
+
+        // when
+        // then
+        assertThatThrownBy(() -> postService.deletePostById(1L, memberForTest))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("해당 글을 찾을 수 없습니다.");
+    }
+
+    @DisplayName("post 수정 - 자신이 작성하지 않은 글은 수정할 수 없다.")
+    @Test
+    void deletePostWhenFailedAuthorNotMatch() {
+        // given
+        String titleBeforeUpdate = "title";
+        String contentBeforeUpdate = "content";
+        Member memberForTest = createMemberForTest(TEST_USER_EMAIL, TEST_USER_PASSWORD);
+        Post post = Post.createPost(titleBeforeUpdate, contentBeforeUpdate, memberForTest);
+        Post savedPost = postRepository.save(post);
+
+        Member anotherAuthor = createMemberForTest(ANOTHER_USER_EMAIL, TEST_USER_PASSWORD);
+
+        // when
+        // then
+        assertThatThrownBy(() -> postService.deletePostById(savedPost.getId(), anotherAuthor))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("해당 글을 찾을 수 없습니다.");
     }
 
     public Member createMemberForTest(String email, String password) {

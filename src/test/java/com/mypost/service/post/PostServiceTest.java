@@ -4,6 +4,7 @@ import com.mypost.controller.dto.post.CreatePostRequestDto;
 import com.mypost.controller.dto.request.PostSearch;
 import com.mypost.domain.member.Member;
 import com.mypost.domain.post.Post.Post;
+import com.mypost.exception.NotFoundException;
 import com.mypost.repository.member.MemberRepository;
 import com.mypost.repository.post.PostRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +18,7 @@ import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 class PostServiceTest {
@@ -74,6 +76,39 @@ class PostServiceTest {
         // then
         assertThat(list.size()).isEqualTo(10);
         assertThat(list.get(0).getTitle()).isEqualTo("title 10");
+    }
+
+    @DisplayName("post 단건을 조회한다.")
+    @Test
+    void getPostWhenSuccess() {
+        // given
+        Member memberForTest = createMemberForTest();
+        List<Post> postsToSave = IntStream
+                .rangeClosed(1, 2)
+                .mapToObj(index -> Post.createPost("title " + index, "content " + index, memberForTest))
+                .collect(toList());
+
+        postRepository.saveAll(postsToSave);
+
+        // when
+        Post post = postService.getPostById(postsToSave.get(0).getId());
+
+        // then
+        assertThat(post.getTitle()).isEqualTo("title 1");
+    }
+
+    @DisplayName("post가 없을 시 예외를 던진다.")
+    @Test
+    void getPostWhenFailedToFind() {
+        // given
+
+        // when
+        assertThatThrownBy(() -> {
+            postService.getPostById(10L);
+        }).isInstanceOf(NotFoundException.class)
+                .hasMessage("해당 글을 찾을 수 없습니다.");
+
+        // then
     }
 
     public Member createMemberForTest() {

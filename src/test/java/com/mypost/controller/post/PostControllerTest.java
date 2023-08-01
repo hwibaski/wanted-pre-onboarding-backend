@@ -173,6 +173,26 @@ class PostControllerTest {
                 .andDo(print());
     }
 
+    @Test
+    @DisplayName("글 단건 조회")
+    void getPost() throws Exception {
+        // given
+        Member memberForTest = createMemberForTest();
+        Post post = Post.createPost("title", "content", memberForTest);
+        Post savedPost = postRepository.save(post);
+        Long savedPostId = savedPost.getId();
+        
+        // when
+        // then
+        mockMvc.perform(get("/api/posts/{postId}", savedPostId.toString())
+                        .accept(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(savedPostId))
+                .andExpect(jsonPath("$.title").value("title"))
+                .andExpect(jsonPath("$.content").value("content"))
+                .andDo(print());
+    }
+
 
     public Member createMemberForTest() {
         Member member = Member.createMember("test@gmail.com", "12345678");

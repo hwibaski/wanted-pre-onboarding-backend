@@ -2,7 +2,7 @@ package com.mypost.controller.post;
 
 import com.mypost.controller.dto.post.CreatePostRequestDto;
 import com.mypost.controller.dto.post.CreatePostResponseDto;
-import com.mypost.controller.dto.post.GetPostsResponseDto;
+import com.mypost.controller.dto.post.GetPostResponseDto;
 import com.mypost.controller.dto.request.PostSearch;
 import com.mypost.domain.member.Member;
 import com.mypost.domain.post.Post.Post;
@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,11 +43,18 @@ public class PostController {
 
     @GetMapping("/posts")
     @ResponseStatus(HttpStatus.OK)
-    public List<GetPostsResponseDto> getPostList(@ModelAttribute PostSearch postSearch) {
+    public List<GetPostResponseDto> getPostList(@ModelAttribute PostSearch postSearch) {
         return postService
                 .getList(postSearch)
                 .stream()
-                .map(post -> new GetPostsResponseDto(post.getId(), post.getTitle(), post.getContent()))
+                .map(post -> new GetPostResponseDto(post.getId(), post.getTitle(), post.getContent()))
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/posts/{postId}")
+    @ResponseStatus(HttpStatus.OK)
+    public GetPostResponseDto getPostById(@PathVariable Long postId) {
+        Post post = postService.getPostById(postId);
+        return new GetPostResponseDto(post.getId(), post.getTitle(), post.getContent());
     }
 }

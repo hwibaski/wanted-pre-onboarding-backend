@@ -4,6 +4,7 @@ import com.mypost.controller.dto.post.CreatePostRequestDto;
 import com.mypost.controller.dto.request.PostSearch;
 import com.mypost.domain.member.Member;
 import com.mypost.domain.post.Post.Post;
+import com.mypost.exception.NotFoundException;
 import com.mypost.repository.post.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,5 +27,10 @@ public class PostService {
 
     public List<Post> getList(PostSearch postSearch) {
         return postRepository.getList(postSearch);
+    }
+
+    public Post getPostById(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException("해당 글을 찾을 수 없습니다."));
     }
 }

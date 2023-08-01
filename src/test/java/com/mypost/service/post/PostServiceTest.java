@@ -1,6 +1,7 @@
 package com.mypost.service.post;
 
 import com.mypost.controller.dto.post.CreatePostRequestDto;
+import com.mypost.controller.dto.post.EditPostRequestDto;
 import com.mypost.controller.dto.request.PostSearch;
 import com.mypost.domain.member.Member;
 import com.mypost.domain.post.Post.Post;
@@ -31,6 +32,9 @@ class PostServiceTest {
     @Autowired
     private PostRepository postRepository;
 
+    private static final String TEST_USER_EMAIL = "test@gmail.com";
+    private static final String TEST_USER_PASSWORD = "12345678";
+
     @BeforeEach
     void beforeEach() {
         this.memberRepository.deleteAllInBatch();
@@ -41,7 +45,7 @@ class PostServiceTest {
     @Test
     void createPostWhenSuccess() {
         // given
-        Member memberForTest = createMemberForTest();
+        Member memberForTest = createMemberForTest(TEST_USER_EMAIL, TEST_USER_PASSWORD);
         CreatePostRequestDto createPostRequestDto = new CreatePostRequestDto("title", "content");
 
         // when
@@ -57,7 +61,7 @@ class PostServiceTest {
     @Test
     void getPostListWhenSuccess() {
         // given
-        Member memberForTest = createMemberForTest();
+        Member memberForTest = createMemberForTest(TEST_USER_EMAIL, TEST_USER_PASSWORD);
         List<Post> postsToSave = IntStream
                 .rangeClosed(1, 10)
                 .mapToObj(index -> Post.createPost("title " + index, "content " + index, memberForTest))
@@ -82,7 +86,7 @@ class PostServiceTest {
     @Test
     void getPostWhenSuccess() {
         // given
-        Member memberForTest = createMemberForTest();
+        Member memberForTest = createMemberForTest(TEST_USER_EMAIL, TEST_USER_PASSWORD);
         List<Post> postsToSave = IntStream
                 .rangeClosed(1, 2)
                 .mapToObj(index -> Post.createPost("title " + index, "content " + index, memberForTest))
@@ -107,12 +111,98 @@ class PostServiceTest {
             postService.getPostById(10L);
         }).isInstanceOf(NotFoundException.class)
                 .hasMessage("해당 글을 찾을 수 없습니다.");
-
-        // then
     }
 
-    public Member createMemberForTest() {
-        Member member = Member.createMember("test@gmail.com", "12345678");
+    @DisplayName("post 수정")
+    @Test
+    void editPostWhenSuccess() {
+        // given
+        Member memberForTest = createMemberForTest(TEST_USER_EMAIL, TEST_USER_PASSWORD);
+        Post post = Post.createPost("title", "content", memberForTest);
+        Post savedPost = postRepository.save(post);
+
+        String titleToUpdate = "title update";
+        String contentToUpdate = "content update";
+
+        EditPostRequestDto editPostRequestDto = new EditPostRequestDto(titleToUpdate, contentToUpdate);
+
+        // when
+        Post postToEdit = postService.editPostById(savedPost.getId(), editPostRequestDto, memberForTest);
+
+        // then
+        assertThat(postToEdit.getTitle()).isEqualTo(titleToUpdate);
+        assertThat(postToEdit.getContent()).isEqualTo(contentToUpdate);
+    }
+
+    @DisplayName("post 수정 - 해당 게시글이 없을 때는 예외를 던진다")
+    @Test
+    void editPostWhenFailedToFindPost() {
+        // given
+        Member memberForTest = createMemberForTest(TEST_USER_EMAIL, TEST_USER_PASSWORD);
+        Post post = Post.createPost("title", "content", memberForTest);
+        Post savedPost = postRepository.save(post);
+
+        String titleToUpdate = "title update";
+        String contentToUpdate = "content update";
+        EditPostRequestDto editPostRequestDto = new EditPostRequestDto(titleToUpdate, contentToUpdate);
+
+        // when
+        // then
+        assertThatThrownBy(() -> postService.editPostById(1L, editPostRequestDto, memberForTest))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("해당 글을 찾을 수 없습니다.");
+    }
+
+    @DisplayName("post 수정 - 자신이 작성하지 않은 글은 수정할 수 없다.")
+    @Test
+    void editPostWhenFailedAuthorNotMatch() {
+        // given
+        String titleBeforeUpdate = "title";
+        String contentBeforeUpdate = "content";
+        Member memberForTest = createMemberForTest(TEST_USER_EMAIL, TEST_USER_PASSWORD);
+        Post post = Post.createPost(titleBeforeUpdate, contentBeforeUpdate, memberForTest);
+        Post savedPost = postRepository.save(post);
+
+        Member anotherAuthor = createMemberForTest(TEST_USER_EMAIL, TEST_USER_PASSWORD);
+
+        String titleToUpdate = "title update";
+        String contentToUpdate = "content update";
+
+        EditPostRequestDto editPostRequestDto = new EditPostRequestDto(titleToUpdate, contentToUpdate);
+
+        // when
+        // then
+        assertThatThrownBy(() -> postService.editPostById(savedPost.getId(), editPostRequestDto, anotherAuthor))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("해당 글을 찾을 수 없습니다.");
+
+    }
+
+    @DisplayName("post 수정 - 수정할 항목에 null을 전달할 경우에는 해당 필드는 변경하지 않는다.")
+    @Test
+    void editPostWhenPassNull() {
+        // given
+        String titleBeforeUpdate = "title";
+        String contentBeforeUpdate = "content";
+        Member memberForTest = createMemberForTest(TEST_USER_EMAIL, TEST_USER_PASSWORD);
+        Post post = Post.createPost(titleBeforeUpdate, contentBeforeUpdate, memberForTest);
+        Post savedPost = postRepository.save(post);
+
+        String titleToUpdate = null;
+        String contentToUpdate = null;
+
+        EditPostRequestDto editPostRequestDto = new EditPostRequestDto(titleToUpdate, contentToUpdate);
+
+        // when
+        Post postToEdit = postService.editPostById(savedPost.getId(), editPostRequestDto, memberForTest);
+
+        // then
+        assertThat(postToEdit.getTitle()).isEqualTo(titleBeforeUpdate);
+        assertThat(postToEdit.getContent()).isEqualTo(contentBeforeUpdate);
+    }
+
+    public Member createMemberForTest(String email, String password) {
+        Member member = Member.createMember(email, password);
         return memberRepository.save(member);
     }
 }

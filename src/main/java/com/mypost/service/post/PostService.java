@@ -1,6 +1,7 @@
 package com.mypost.service.post;
 
 import com.mypost.controller.dto.post.CreatePostRequestDto;
+import com.mypost.controller.dto.post.EditPostRequestDto;
 import com.mypost.controller.dto.request.PostSearch;
 import com.mypost.domain.member.Member;
 import com.mypost.domain.post.Post.Post;
@@ -32,5 +33,13 @@ public class PostService {
     public Post getPostById(Long postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("해당 글을 찾을 수 없습니다."));
+    }
+
+    public Post editPostById(Long postId, EditPostRequestDto editPostRequestDto, Member member) {
+        Post post = postRepository.findPostByIdAndMember(postId, member)
+                .orElseThrow(() -> new NotFoundException("해당 글을 찾을 수 없습니다."));
+
+        post.change(editPostRequestDto.getTitle(), editPostRequestDto.getContent());
+        return post;
     }
 }

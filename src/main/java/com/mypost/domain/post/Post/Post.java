@@ -42,4 +42,14 @@ public class Post {
     public static Post createPost(String title, String content, Member member) {
         return new Post(title, content, member);
     }
+
+    public void change(String title, String content) {
+        if (title != null) {
+            this.title = title;
+        }
+
+        if (content != null) {
+            this.content = content;
+        }
+    }
 }

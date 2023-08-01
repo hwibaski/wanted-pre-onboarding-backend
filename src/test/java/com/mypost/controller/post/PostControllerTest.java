@@ -3,6 +3,7 @@ package com.mypost.controller.post;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mypost.annotation.WithAccount;
 import com.mypost.controller.dto.post.CreatePostRequestDto;
+import com.mypost.controller.dto.post.EditPostRequestDto;
 import com.mypost.domain.member.Member;
 import com.mypost.domain.post.Post.Post;
 import com.mypost.repository.member.MemberRepository;
@@ -14,16 +15,19 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -47,7 +51,7 @@ class PostControllerTest {
     @AfterEach
     void afterEach() {
         this.postRepository.deleteAllInBatch();
-        this.memberRepository.deleteAllInBatch();
+//        this.memberRepository.deleteAllInBatch();
     }
 
     @Nested
@@ -181,7 +185,7 @@ class PostControllerTest {
         Post post = Post.createPost("title", "content", memberForTest);
         Post savedPost = postRepository.save(post);
         Long savedPostId = savedPost.getId();
-        
+
         // when
         // then
         mockMvc.perform(get("/api/posts/{postId}", savedPostId.toString())
@@ -190,6 +194,88 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.id").value(savedPostId))
                 .andExpect(jsonPath("$.title").value("title"))
                 .andExpect(jsonPath("$.content").value("content"))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("글 수정")
+    @WithAccount("test@gmail.com")
+    void editPost() throws Exception {
+        // given
+        String name = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<Member> author = memberRepository.findByEmail(name);
+
+        Post post = Post.createPost("title", "content", author.get());
+        Post savedPost = postRepository.save(post);
+        Long savedPostId = savedPost.getId();
+
+        EditPostRequestDto editPostRequestDto = new EditPostRequestDto("title update", "content update");
+        String requestBody = objectMapper.writeValueAsString(editPostRequestDto);
+
+        // when
+        // then
+        mockMvc.perform(patch("/api/posts/{postId}", savedPostId.toString())
+                        .content(requestBody)
+                        .contentType(APPLICATION_JSON)
+                        .accept(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.postId").value(savedPostId))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("글 수정")
+    @WithAccount("test@gmail.com")
+    void editPostFailWhenBlankTitle() throws Exception {
+        // given
+        String name = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<Member> author = memberRepository.findByEmail(name);
+
+        Post post = Post.createPost("title", "content", author.get());
+        Post savedPost = postRepository.save(post);
+        Long savedPostId = savedPost.getId();
+
+        EditPostRequestDto editPostRequestDto = new EditPostRequestDto("", "content update");
+        String requestBody = objectMapper.writeValueAsString(editPostRequestDto);
+
+        // when
+        // then
+        mockMvc.perform(patch("/api/posts/{postId}", savedPostId.toString())
+                        .content(requestBody)
+                        .contentType(APPLICATION_JSON)
+                        .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
+                .andExpect(jsonPath("$.validation.title").value("글 제목을 확인해주세요"))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("글 수정")
+    @WithAccount("test@gmail.com")
+    void editPostFailWhenBlankContent() throws Exception {
+        // given
+        String name = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<Member> author = memberRepository.findByEmail(name);
+
+        Post post = Post.createPost("title", "content", author.get());
+        Post savedPost = postRepository.save(post);
+        Long savedPostId = savedPost.getId();
+
+        EditPostRequestDto editPostRequestDto = new EditPostRequestDto("title update", "");
+        String requestBody = objectMapper.writeValueAsString(editPostRequestDto);
+
+        // when
+        // then
+        mockMvc.perform(patch("/api/posts/{postId}", savedPostId.toString())
+                        .content(requestBody)
+                        .contentType(APPLICATION_JSON)
+                        .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
+                .andExpect(jsonPath("$.validation.content").value("글 본문을 확인해주세요"))
                 .andDo(print());
     }
 

@@ -2,6 +2,8 @@ package com.mypost.controller.post;
 
 import com.mypost.controller.dto.post.CreatePostRequestDto;
 import com.mypost.controller.dto.post.CreatePostResponseDto;
+import com.mypost.controller.dto.post.EditPostRequestDto;
+import com.mypost.controller.dto.post.EditPostResponseDto;
 import com.mypost.controller.dto.post.GetPostResponseDto;
 import com.mypost.controller.dto.request.PostSearch;
 import com.mypost.domain.member.Member;
@@ -13,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,5 +59,13 @@ public class PostController {
     public GetPostResponseDto getPostById(@PathVariable Long postId) {
         Post post = postService.getPostById(postId);
         return new GetPostResponseDto(post.getId(), post.getTitle(), post.getContent());
+    }
+
+    @PatchMapping("/posts/{postId}")
+    @ResponseStatus(HttpStatus.OK)
+    public EditPostResponseDto editPostById(@PathVariable Long postId, @Valid @RequestBody EditPostRequestDto editPostRequestDto, Principal principal) {
+        Member member = memberService.findMemberByEmail(principal.getName());
+        Post post = postService.editPostById(postId, editPostRequestDto, member);
+        return new EditPostResponseDto(post.getId());
     }
 }

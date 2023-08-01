@@ -8,6 +8,7 @@ import com.mypost.controller.dto.post.GetPostResponseDto;
 import com.mypost.controller.dto.request.PostSearch;
 import com.mypost.domain.member.Member;
 import com.mypost.domain.post.Post.Post;
+import com.mypost.exception.UnathorizedException;
 import com.mypost.service.member.MemberService;
 import com.mypost.service.post.PostService;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,9 @@ public class PostController {
     @PostMapping("/post")
     @ResponseStatus(HttpStatus.CREATED)
     public CreatePostResponseDto post(@Valid @RequestBody CreatePostRequestDto createPostRequestDto, Principal principal) {
+        if (principal == null) {
+            throw new UnathorizedException("인증 정보를 확인해주세요");
+        }
         Member member = memberService.findMemberByEmail(principal.getName());
         Post post = postService.create(createPostRequestDto, member);
         return new CreatePostResponseDto(post.getId());
@@ -65,6 +69,9 @@ public class PostController {
     @PatchMapping("/posts/{postId}")
     @ResponseStatus(HttpStatus.OK)
     public EditPostResponseDto editPostById(@PathVariable Long postId, @Valid @RequestBody EditPostRequestDto editPostRequestDto, Principal principal) {
+        if (principal == null) {
+            throw new UnathorizedException("인증 정보를 확인해주세요");
+        }
         Member member = memberService.findMemberByEmail(principal.getName());
         Post post = postService.editPostById(postId, editPostRequestDto, member);
         return new EditPostResponseDto(post.getId());
@@ -73,6 +80,9 @@ public class PostController {
     @DeleteMapping("/posts/{postId}")
     @ResponseStatus(HttpStatus.OK)
     public void deletePostById(@PathVariable Long postId, Principal principal) {
+        if (principal == null) {
+            throw new UnathorizedException("인증 정보를 확인해주세요");
+        }
         Member member = memberService.findMemberByEmail(principal.getName());
         postService.deletePostById(postId, member);
     }

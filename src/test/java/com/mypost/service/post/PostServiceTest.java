@@ -71,10 +71,7 @@ class PostServiceTest {
 
         postRepository.saveAll(postsToSave);
 
-        PostSearch postSearch = PostSearch.builder()
-                .page(1)
-                .size(10)
-                .build();
+        PostSearch postSearch = new PostSearch(1, 10);
 
         // when
         List<Post> list = postService.getList(postSearch);

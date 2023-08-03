@@ -34,6 +34,7 @@ $ docker-comsose up --build
     - /api/posts/{postId}
 
 ## 2. ERD
+![image](https://github.com/hwibaski/wanted-pre-onboarding-backend/assets/85930725/df59fb0f-cff6-4756-a6e1-dd65b4097725)
 
 ## 3. API 동작 촬영 데모 영상 링크
 
